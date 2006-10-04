@@ -1,0 +1,5 @@
+#!/bin/sh
+/usr/local/phpdoc/phpdoc \
+    -q \
+    -ti 'Habari PHP API Documentation' \
+    -d ./ -t PHPDOCS/ 
