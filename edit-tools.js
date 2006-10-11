@@ -23,8 +23,7 @@ function edit(obj){
 
      var textarea ='<div id="' + obj.id + '_editor"><textarea id="' + obj.id + '_edit" name="' + obj.id + '" rows="4" cols="60">' + obj.innerHTML + '</textarea>';
 
-     var button = '<input id="' + obj.id + '_save" type="button" value="SAVE" /> OR 
-          <input id="' + obj.id + '_cancel" type="button" value="CANCEL" /></div>';
+     var button = '<input id="' + obj.id + '_save" type="button" value="SAVE" /> OR <input id="' + obj.id + '_cancel" type="button" value="CANCEL" /></div>';
 
      new Insertion.After(obj, textarea+button);
 
