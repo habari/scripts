@@ -1,6 +1,0 @@
-#!/bin/sh
-phpdoc \
-    -ti 'Habari PHP API Documentation' \
-    -dc 'Habari' \
-    -dn 'Habari' \
-    -d ./ -t PHPDOCS/ 

@@ -1,0 +1,47 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Habari bootstrapped evaluator
+ * 
+ * WARNING: DO NOT PUT THIS FILE IN YOUR PUBLIC WEBROOT, OR ANYWHERE ACCESSIBLE
+ * BY YOUR WEB SERVER. PROTECT IT. THIS CODE IS DANGEROUS IN THE WRONG HANDS.
+ *
+ * This script can be used to run code from within the Habari infrastructure
+ * from the command line.
+ *
+ * Example:
+ *   $ echo 'echo Format::autop("foo\n\nbar");' | ./heval
+ *   <p>foo</p><p>bar</p>
+ *
+ * You may need to change the #! line above, if your system doesn't have `env`
+ * in the normal place.
+ *
+ * Also, if this script can't find your Habari install, try setting
+ * $_ENV['HEVAL_INDEX'] to /path/to/habari/htdocs/index.php
+ *
+ * If you don't know what the #! line is, or how to set $_ENV, you really
+ * shouldn't be using this script. Delete it now.
+ */
+
+if ( 'cli' !== PHP_SAPI ) {
+	echo "For security reasons, this script can only be run from the cli SAPI.\n";
+	die;
+}
+
+$cmd = file_get_contents( 'php://stdin' );
+
+define( 'UNIT_TEST', true );
+if (isset($_ENV['HEVAL_INDEX'])) {
+    require $_ENV['HEVAL_INDEX'];
+} else {
+    require dirname( dirname( __FILE__ ) ) . '/htdocs/index.php';
+}
+
+ob_start();
+eval( $cmd );
+$out = ob_get_clean();
+
+if ( substr( $out, -1 ) != "\n" ) {
+    $out .= "\n";
+}
+echo $out;
