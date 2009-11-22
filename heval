@@ -32,9 +32,9 @@ $cmd = file_get_contents( 'php://stdin' );
 
 define( 'UNIT_TEST', true );
 if (isset($_ENV['HEVAL_INDEX'])) {
-    require $_ENV['HEVAL_INDEX'];
+	require $_ENV['HEVAL_INDEX'];
 } else {
-    require dirname( dirname( __FILE__ ) ) . '/htdocs/index.php';
+	require dirname( dirname( __FILE__ ) ) . '/htdocs/index.php';
 }
 
 ob_start();
@@ -42,6 +42,6 @@ eval( $cmd );
 $out = ob_get_clean();
 
 if ( substr( $out, -1 ) != "\n" ) {
-    $out .= "\n";
+	$out .= "\n";
 }
 echo $out;
