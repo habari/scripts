@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd /home/matt/habari-system/
+git pull
+echo "updating git"
+./rxgettext.sh
+echo "generating POT"
+git add locale/habari.pot
+git commit  -m"automatic POT template generation"
+git push
+echo "commit new POT to git"
