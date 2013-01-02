@@ -1,0 +1,72 @@
+#!/bin/sh
+
+usage() {
+  echo "Usage: $0 <tag> [<tag_output>]"
+	printf "\t%12s\t%s\n" "<tag>" "Tag at github.com/habari/system."
+	printf "\t%12s\t%s\n" "<tag_output>" "Tag to use in the filename, if not <tag>."
+	echo "Example: build_release v0.9 0.9"
+	exit 1
+}
+
+# if we have too few or too many arguments, show usage
+if ( [ $# -eq 0 ] || [ $# -gt 2 ] )
+then
+	usage
+fi
+
+# by default, use the git tag parameter as the name of the zip file, but if a specific tag_output parameter was specified, use that instead
+zip_tag=$1
+if [ -n "$2" ] 
+then
+	zip_tag=$2
+fi
+
+echo "Preparing tag $1 for release as habari-$zip_tag"
+
+# the location we export to
+EXPORT="/home/habari/public_html/habariproject.org/private/dist_export/habari-$zip_tag"
+
+# the name of the destination directory for file and md5
+TARGET="/home/habari/public_html/habariproject.org/public/dist/"
+
+# the git location to export
+GIT="https://github.com/habari/habari.git"
+
+# remove the existing export copy, in case it already exists
+/usr/bin/env rm -Rfd "$EXPORT"
+
+# clone a fresh copy
+/usr/bin/env git clone "$GIT" "$EXPORT"
+
+# move to the export directory so we have a decent path
+cd "$EXPORT"
+
+# update submodules
+/usr/bin/env git submodule update --init --recursive
+
+# remove the .git directory so we just have the files, not a working git repo - git archive does not support submodules, so we can't use it
+/usr/bin/env find . -name .git -print0 | xargs -0 rm -rf
+
+# build the name of the zip file, based on whichever tag we're using
+release_zip="$TARGET/habari-$zip_tag.zip"
+# and delete it, just in case it already exists
+[ -f "$release_zip" ] && /usr/bin/env rm -Rfd "$release_zip"
+
+# before we zip, we want to move up one more directory - this gets us a directory named something like "habari_0.9" in the final export
+cd ../
+
+# zip up only the directory we actually exported to (in case there are others in this directory) to its new home
+/usr/bin/env zip -9 -r -q "$release_zip" "habari-$zip_tag"
+
+# build the name of the md5 file, based on whichever tag we're using
+release_md5="$TARGET/habari-$zip_tag.md5"
+# remove the existing md5 file if it's there
+[ -f "$release_md5" ] && /usr/bin/env rm -Rfd "$release_md5"
+
+# move into the destination directory so we get a decent path in the md5
+cd "$TARGET"
+
+# create an md5 using just the name of the zip file, rather than the whole page we already built
+/usr/bin/env md5sum "habari-$zip_tag.zip" > "habari-$zip_tag.md5"
+
+echo "Tag $1 exported for release at $release_zip"
