@@ -1,0 +1,57 @@
+#!/bin/sh
+
+# the location we export to
+EXPORT="/home/habari/public_html/habariproject.org/private/dist_export/habari-head"
+
+# the name of the destination directory for file and md5
+TARGET="/home/habari/public_html/habariproject.org/public/dist/"
+
+# the git location to export
+GIT="https://github.com/habari/habari.git"
+
+# remove the existing export copy, in case it already exists
+/usr/bin/env rm -Rfd "$EXPORT"
+
+# clone a fresh copy
+/usr/bin/env git clone "$GIT" "$EXPORT"
+
+# move to the export directory so we have a decent path
+cd "$EXPORT"
+
+# update submodules
+/usr/bin/env git submodule update --init --recursive
+
+# move into system and check out the latest branch
+cd system
+/usr/bin/env git checkout master
+
+# make sure that any submodules that changed after that checkout are updated
+/usr/bin/env git submodule update --init --recursive
+
+# move back up to the main repo dir
+cd ../
+
+# remove the .git directory so we just have the files, not a working git repo - git archive does not support submodules, so we can't use it
+/usr/bin/env find . -name .git -print0 | xargs -0 rm -rf
+
+#/usr/bin/env rm -Rfd "$EXPORT/.git"
+#/usr/bin/env rm -Rfd "$EXPORT/system/.git"
+#/usr/bin/env rm -Rfd "$EXPORT/doc/.git"
+
+# remove the existing zip file
+/usr/bin/env rm -Rfd "$TARGET/habari-head.zip"
+
+# before we zip, we want to move up one more directory - this gets us a directory named "habari_head" in the final export
+cd ../
+
+# zip up only the habari-head directory (there may be others) into its new home
+/usr/bin/env zip -9 -r -q "$TARGET/habari-head.zip" "habari-head"
+
+# remove the existing md5 file
+/usr/bin/env rm -Rfd "$TARGET/habari-head.md5"
+
+# move into the destination directory so we get a decent path in the md5
+cd "$TARGET"
+
+# create an md5
+/usr/bin/env md5sum "habari-head.zip" > "habari-head.md5"
