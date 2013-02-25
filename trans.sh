@@ -61,20 +61,20 @@ cd $GIT;
 for d in `ls $TRANSIFEX_TS*.po`;
 do
 	if [[ $d =~ $TRANSIFEX_TS(.*).po ]]
-    then
+	then
 		if [ ! -d ${BASH_REMATCH[1]} ]
-        then
+		then
 			if ! github_create ${BASH_REMATCH[1]}
 			then
 				github_clone ${BASH_REMATCH[1]}
 			else
 				github_init ${BASH_REMATCH[1]}
 			fi
-        else
+		else
 			github_pull ${BASH_REMATCH[1]}
-        fi
+		fi
 		github_push ${BASH_REMATCH[1]}
-    fi
+	fi
 done
 
 echo "done!"
